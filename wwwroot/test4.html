@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Popup</title>
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.16.0/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></link>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js" type="text/javascript"></script>    
+    <script src="http://openlayers.org/en/v3.16.0/build/ol-debug.js" type="text/javascript"></script>
+    <style>
+        .ol-popup {
+            position: absolute;
+            background-color: white;
+            -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+            filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #cccccc;
+            bottom: 12px;
+            left: -50px;
+            min-width: 280px;
+        }
+        
+        .ol-popup:after,
+        .ol-popup:before {
+            top: 100%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+        
+        .ol-popup:after {
+            border-top-color: white;
+            border-width: 10px;
+            left: 48px;
+            margin-left: -10px;
+        }
+        
+        .ol-popup:before {
+            border-top-color: #cccccc;
+            border-width: 11px;
+            left: 48px;
+            margin-left: -11px;
+        }
+        
+        .ol-popup-closer {
+            text-decoration: none;
+            position: absolute;
+            top: 2px;
+            right: 8px;
+        }
+        
+        .ol-popup-closer:after {
+            content: "✖";
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map" class="map" style="height: 400px; width: 800px;"></div>
+    <script>
+
+        function getPointFeatures() {
+                var iconFeature = new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.transform([-72.0704, 46.678], 'EPSG:4326',     
+                    'EPSG:3857')),
+                    name: 'Null Island',
+                    population: 4000,
+                    rainfall: 500
+                });
+                var iconFeature1 = new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.transform([73.1234, -45.678], 'EPSG:4326',     
+                    'EPSG:3857')),
+                    name: 'Null Island Two',
+                    population: 4001,
+                    rainfall: 501
+                });
+                var vectorSource = new ol.source.Vector({
+                    features: [iconFeature, iconFeature1]
+                });
+                return vectorSource;  
+        }
+
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Vector({
+                    id: 'points',
+                    source: getPointFeatures()
+                })
+            ],
+            view: new ol.View({
+                center: [0, 0],
+                zoom: 1
+            })
+        });
+
+        // var selectInteraction = new ol.interaction.Select({
+        //     layers: function (layer) {
+        //         return layer.get('id') == 'points';
+        //     }
+        // });
+        // map.addInteraction(selectInteraction);
+
+        map.on('singleclick', function(event) {
+            var feature = getPointFeatureAtPosition(event.pixel);
+            if (!feature) {
+                return;
+            }
+            //var coord = feature.getGeometry().getCoordinates();
+            var overlay = getRedLiningTextEditPopupOverlay();
+            if(!overlay) {
+                var popup = getRedLiningTextEditPopupElement();
+                addRedLiningTextEditPopupCloseHandler(popup, '#redlining-text-edit-popup-cancel');
+                addRedLiningTextEditPopupCloseHandler(popup, '#redlining-text-edit-popup-save', function(){
+                    var text = getRedLiningTextEditPopupContentText(overlay);
+                    feature.setProperties({ name: text });
+                });
+                overlay = createRedLiningTextEditPopupOverlay(popup[0]);
+                map.addOverlay(overlay);                  
+            }
+            var properties = feature.getProperties();
+            setRedLiningTextEditPopupContentText(overlay, properties.name);
+            setRedLiningTextEditPopupPosition(overlay, event.coordinate);   
+        });
+
+        function setRedLiningTextEditPopupPosition(overlay, position) {        
+            overlay.setPosition(position); 
+        };
+        
+        function getRedLiningTextEditPopupContentText(overlay) {        
+            var content = $(overlay.getElement()).find('#redlining-text-edit-popup-content');
+            return content.val(); 
+        };
+
+        function setRedLiningTextEditPopupContentText(overlay, text) {        
+            var content = $(overlay.getElement()).find('#redlining-text-edit-popup-content');
+            console.log(text);
+            content.val(text || ""); 
+        };
+        
+        function createRedLiningTextEditPopupOverlay(popupElement) {
+            return new ol.Overlay({
+                id: "redlining-text-edit-popup",
+                element: popupElement  
+            });            
+        };
+
+        function getRedLiningTextEditPopupElement() {
+            return $('<div id="redlining-text-edit-popup" class="ol-popup">' 
+            + '<a href="#" id="redlining-text-edit-popup-cancel" class="ol-popup-closer"></a>' 
+            + '<button id="redlining-text-edit-popup-save">Save</button>' 
+            + '<textarea id="redlining-text-edit-popup-content"></textarea>' 
+            + '</div>');
+        };
+        
+        function addRedLiningTextEditPopupCloseHandler(popup, buttonId, callback) {
+            var closer = popup.find(buttonId); 
+            closer.click(function() {
+                getOverlayById("redlining-text-edit-popup").setPosition(undefined);
+                closer.blur();
+                if(callback) {
+                    callback();
+                }
+                return false;
+            });
+        };
+                
+        function getPointFeatureAtPosition(position) {
+            var feature = map.forEachFeatureAtPixel(position, function(feature, layer) {
+                if(layer.get('id') === 'points' && feature.getGeometry() instanceof ol.geom.Point) { //TODO: use layer.getId()
+                    return feature;
+                }
+            });
+            return feature;
+        };
+
+        function getRedLiningTextEditPopupOverlay() {
+             return getOverlayById("redlining-text-edit-popup");
+        };
+
+        function getOverlayById(overLayId) {
+            var overlay;
+            map.getOverlays().forEach(function(o) { 
+                if(o.getId() === overLayId) {
+                    overlay = o;
+                }
+            });
+            return overlay;
+        }      
+    </script>
+</body>
+
+</html>

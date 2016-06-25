@@ -1,0 +1,69 @@
+<sw-tabstrip>
+  <sw-tabstrip-sidebar>
+    <sw-pane title="Drawing tools">
+      <h4>Drawin tools</h4>
+      <sw-toolbar>
+        <sw-toolbar-button title="1" icon="fa-pencil" click="vm2.mapService.togglePolygonDrawingInteraction()" />
+        <sw-toolbar-button title="2" icon="fa-pencil" click="vm2.mapService.toggleLineStringDrawingInteraction()" />
+        <sw-toolbar-button title="3" icon="fa-pencil" click="vm2.mapService.togglePointDrawingInteraction()" />
+        <sw-toolbar-button title="4" icon="fa-pencil" click="vm2.mapService.toggleCircleDrawingInteraction()" />
+      </sw-toolbar>
+    </sw-pane>
+    <sw-pane title="Layers">
+      <h4>Layers</h4>
+    </sw-pane>
+    <sw-pane title="?">
+      <h4>?</h4>
+    </sw-pane>
+  </sw-tabstrip-sidebar>
+  <sw-tabstrip-map>
+    <sw-map map-service="vm2.mapService">
+      <!--<sw-drawing-interaction map-service="vm2.mapService"></sw-drawing-interaction>-->
+    </sw-map>
+  </sw-tabstrip-map>
+
+  <sw-tabstrip-notification>
+      <div>Coordinate: {{vm2.pointerCoordinate | coordinateFormat}}</div>
+  </sw-tabstrip-notification>
+
+</sw-tabstrip>
+
+<script type="text/ng-template" id="swMap.html">
+  <div style="height: 100%;">
+    <div ng-transclude></div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="swToolbar.html">
+  <ul class="toolbar">
+    <li ng-repeat="toolbarButton in toolbarButtons" ng-class="{active: toolbarButton.selected}">
+      <a ng-click="toggle(toolbarButton)">
+        <i class="menu-icon fa {{toolbarButton.icon}}"></i>
+      </a>
+    </li>
+  </ul> 
+  <div ng-transclude></div>
+</script>
+
+<script type="text/ng-template" id="swTabstrip.html">
+  <div id="main-area-wrapper" ng-class="{'wide': anyPaneSelected()}">
+    <div style="height: calc(100% - 36px);" ng-transclude="map">
+    </div>
+    <span style="float: left;">
+      <ul class="toolbar">
+        <li ng-repeat="pane in panes" ng-class="{active: pane.selected}">
+          <a ng-click="toggle(pane)">
+            <i class="menu-icon fa fa-pencil"></i>
+          </a>
+        </li>
+      </ul>
+    </span>
+    <span style="float: right;" ng-transclude="notification"></span>
+  </div>
+  <div class="sidebar-wrapper" ng-transclude="sidebar" ng-class="{'open': anyPaneSelected()}">
+  </div>
+</script>
+
+<script type="text/ng-template" id="swPane.html">
+  <div ng-show="selected" ng-transclude></div>
+</script>
