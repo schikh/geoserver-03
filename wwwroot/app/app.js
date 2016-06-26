@@ -3,19 +3,15 @@
 
     var app = angular.module('app', [
             'ui.bootstrap',
-            'customerManagement',
-            'customerResourceMock',
             //'ngResource',
             //'ui.mask',
-            'ngeoSchemaModule',
+            'btModule',
             'ui.router',
             'ngAnimate'
             ]);
             
     angular.module('customerManagement', ['ngResource']);
-    //var basicSchema = angular.module("basicSchema", ["openlayers-directive"]);
-    //var ngeoSchemaModule = angular.module("ngeoSchemaModule", ["ngeo"]);  
-    var ngeoSchemaModule = angular.module('ngeoSchemaModule', []);  
+    var btModule = angular.module('btModule', []);  
         
     app.config(function ($provide) {
         $provide.decorator('$exceptionHandler',

@@ -1,4 +1,5 @@
 <sw-tabstrip>
+
   <sw-tabstrip-sidebar>
     <sw-pane title="Drawing tools">
       <h4>Drawin tools</h4>
@@ -16,6 +17,7 @@
       <h4>?</h4>
     </sw-pane>
   </sw-tabstrip-sidebar>
+
   <sw-tabstrip-map>
     <sw-map map-service="vm2.mapService">
       <!--<sw-drawing-interaction map-service="vm2.mapService"></sw-drawing-interaction>-->
@@ -47,8 +49,6 @@
 
 <script type="text/ng-template" id="swTabstrip.html">
   <div id="main-area-wrapper" ng-class="{'wide': anyPaneSelected()}">
-    <div style="height: calc(100% - 36px);" ng-transclude="map">
-    </div>
     <span style="float: left;">
       <ul class="toolbar">
         <li ng-repeat="pane in panes" ng-class="{active: pane.selected}">
@@ -58,7 +58,9 @@
         </li>
       </ul>
     </span>
-    <span style="float: right;" ng-transclude="notification"></span>
+    <div style="height: calc(100% - 36px);" ng-transclude="map">
+      <span style="float: right; background-color:pink;" ng-transclude="notification"></span>
+    </div>
   </div>
   <div class="sidebar-wrapper" ng-transclude="sidebar" ng-class="{'open': anyPaneSelected()}">
   </div>

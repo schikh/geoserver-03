@@ -12,69 +12,23 @@
                     }
                 })
                 
-                .state('ol1', {
+                .state('bt', {
                     //abstract: true,
-                    url: '/ol1',
+                    url: '/bt',
                     views: {
                         '@': { 
-                            templateUrl: 'app/ol1/frame.html',
+                            templateUrl: 'app/bt/frame.html',
                             controller: 'mapCtrl as vm2'
                         }
                     }
                 })                
-               
-                .state('ol1.2', {
-                    url: '/ol1.2',
+                .state('bt.2', {
+                    url: '/bt.2',
                     views: {
                         '@': {
-                            templateUrl: 'app/ol1/ol12EditView.html',
-                            controller: 'ol12EditCtrl as vm'
+                            templateUrl: 'app/bt/btModule.html',
+                            controller: 'btModule as vm'
                         }
-                    }
-                })
-                // .state('ngeoSchema', {
-                //     url: '/ngeoSchema',
-                //     views: {
-                //         '@': {
-                //             templateUrl: 'app/ngeoSchema/ngeoSchemaEditView.html',
-                //             controller: 'ngeoSchemaEditCtrl as vm'
-                //         }
-                //     }
-                // })
-                // .state('basicSchema', {
-                //     url: '/basicSchema',
-                //     views: {
-                //         '@': {
-                //             templateUrl: 'app/basicSchema/basicSchemaEditView.html',
-                //             controller: 'basicSchemaEditCtrl as vm'
-                //         }
-                //     }
-                // })
-                .state('customerList', {
-                    url: '/customers',
-                    views: {
-                        '@': {
-                            templateUrl: 'app/customers/customerListView.html',
-                            controller: 'customerListCtrl as vm'
-                        },
-                        'side-nav@': { templateUrl: 'app/customers/customerListSideBar.html' }
-                    }
-                })
-                .state('customerList.customerEdit', {
-                    url: '/edit/:customerId',
-                    views: {
-                        '@': {
-                            templateUrl: 'app/customers/customerEditView.html',
-                            controller: 'customerEditCtrl as vm',
-                            resolve: {
-                                customerResource: 'customerResource',
-                                customer: function (customerResource, $stateParams) {
-                                    var customerId = $stateParams.customerId;
-                                    return customerResource.get({ customerId: customerId }).$promise;
-                                }
-                            }
-                        },
-                        'side-nav@': { templateUrl: 'app/customers/customerListSideBar.html' }
                     }
                 });
             $urlRouterProvider.otherwise('/');

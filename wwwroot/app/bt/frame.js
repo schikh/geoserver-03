@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ngeoSchemaModule')
+    angular.module('btModule')
         .directive('swTabstrip', function () {
             return {
                 restrict: 'E',
@@ -39,7 +39,7 @@
             }
         });
 
-    angular.module('ngeoSchemaModule')
+    angular.module('btModule')
         .directive('swPane', function () {
             return {
                 restrict: 'E',
@@ -55,7 +55,7 @@
             }
         });
 
-    angular.module('ngeoSchemaModule')
+    angular.module('btModule')
         .directive('swToolbar', function () {
             return {
                 restrict: 'E',
@@ -92,7 +92,7 @@
             }
         });
 
-    angular.module('ngeoSchemaModule')
+    angular.module('btModule')
         .directive('swToolbarButton', function () {
             return {
                 restrict: 'E',
