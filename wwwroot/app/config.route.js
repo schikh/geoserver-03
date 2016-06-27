@@ -8,26 +8,17 @@
             $stateProvider.state('home', {
                     url: '/',
                     views: {
-                        '@': { templateUrl: 'app/welcomeView.html' }
+                        '@': { templateUrl: 'app/homePage.html' }
                     }
                 })
                 
-                .state('bt', {
+                .state('map', {
                     //abstract: true,
-                    url: '/bt',
+                    url: '/map',
                     views: {
                         '@': { 
                             templateUrl: 'app/bt/frame.html',
                             controller: 'mapCtrl as vm2'
-                        }
-                    }
-                })                
-                .state('bt.2', {
-                    url: '/bt.2',
-                    views: {
-                        '@': {
-                            templateUrl: 'app/bt/btModule.html',
-                            controller: 'btModule as vm'
                         }
                     }
                 });

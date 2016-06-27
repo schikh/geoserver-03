@@ -3,120 +3,162 @@
 
     angular.module('btModule')
         .factory('mapService', ['ol', function (ol) {
+            //Todo: move after angular initialization
+            configureLambertProjection();
+
             return {
-                getInstance: getInstance
-            }
-        
-            function getInstance() {
-                var map;
-                var drawingLayerFeatures;
-                var mapPointerCorrdinateChangeCallBack;
-                return {
-                    initialize: function (divElement) {
-                        initialize(map, divElement);
-                    },
-                    registerMapPointerCorrdinateChange: function (callBack) {
-                        mapPointerCorrdinateChangeCallBack = callBack;
-                    },
-                    drawingInteractionActive: function () {
-                        return _.some(map.getInteractions().getArray(), function (obj) {
-                            return obj instanceof ol.interaction.Draw;
-                        });
-                    },
-                    togglePolygonDrawingInteraction: function () {
-                        toggleDrawingInteraction(map, 'Polygon', drawingLayerFeatures);
-                    },
-                    toggleLineStringDrawingInteraction: function () {
-                        toggleDrawingInteraction(map, 'LineString', drawingLayerFeatures);
-                    },
-                    togglePointDrawingInteraction: function () {
-                        toggleDrawingInteraction(map, 'Point', drawingLayerFeatures);
-                    },  
-                    toggleCircleDrawingInteraction: function () {
-                        toggleDrawingInteraction(map, 'Circle', drawingLayerFeatures);
-                    }   
+                getInstance: function () {
+                    return new service();
                 }
+            }
+
+            function configureLambertProjection() {
+                // Set LAMBERT PROJECTION - EPSG 31370
+                var def = "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=-106.869,52.2978,-103.724,0.3366,-0.457,1.8422,-1.2747 +units=m +no_defs";
+                proj4.defs("EPSG:31370", def);
+                proj4.defs("http://www.opengis.net/gml/srs/epsg.xml#31370", def);
+            }            
+        }]);
+
+        function service() {
+            var map;
+            var mapPointerCorrdinateChangeCallBack;
+            var vectorLayer;
+
+            this.initialize = function (divElement) {
+                initialize(divElement);
             };
 
-            // return {
-            //     getInstance: function () {
-            //         return new service();
-            //     }
-            // }
+            this.registerMapPointerCorrdinateChange = function (callBack) {
+                mapPointerCorrdinateChangeCallBack = callBack;
+            };
 
-            // function service() {
-            //     var map;
-            //     var drawingLayerFeatures;
-            //     var mapPointerCorrdinateChangeCallBack;
+            this.drawingInteractionActive = function () {
+                return _.some(map.getInteractions().getArray(), function (obj) {
+                    return obj instanceof ol.interaction.Draw;
+                });
+            };
 
-            //     this.initialize = function (divElement) {
-            //          initialize(map, divElement);
-            //     };
+            this.togglePolygonDrawingInteraction = function () {
+                toggleDrawingInteraction('Polygon');
+            };
 
-            //     this.registerMapPointerCorrdinateChange = function (callBack) {
-            //         mapPointerCorrdinateChangeCallBack = callBack;
-            //     };
+            this.toggleLineStringDrawingInteraction = function () {
+                toggleDrawingInteraction('LineString');
+            };
 
-            //     this.drawingInteractionActive = function () {
-            //         return _.some(map.getInteractions().getArray(), function (obj) {
-            //             return obj instanceof ol.interaction.Draw;
-            //         });
-            //     };
+            this.togglePointDrawingInteraction = function () {
+                toggleDrawingInteraction('Point');
+            };
 
-            //     this.togglePolygonDrawingInteraction = function () {
-            //         toggleDrawingInteraction(map, 'Polygon', drawingLayerFeatures);
-            //     };
-                
-            //     this.toggleLineStringDrawingInteraction = function () {
-            //         toggleDrawingInteraction(map, 'LineString', drawingLayerFeatures);
-            //     };
-                
-            //     this.togglePointDrawingInteraction = function () {
-            //         toggleDrawingInteraction(map, 'Point', drawingLayerFeatures);
-            //     };   
-
-            //     this.toggleCircleDrawingInteraction = function () {
-            //         toggleDrawingInteraction(map, 'Circle', drawingLayerFeatures);
-            //     };   
-            // }
-
-            function initialize(map, divElement) {
+            this.toggleCircleDrawingInteraction = function () {
+                toggleDrawingInteraction('Circle');
+            };   
+        
+            function initialize(divElement) {
                 map = new ol.Map({
                     target: divElement
                 });
 
                 var geographicLayers = getGeographicLayers();
                 geographicLayers.forEach(function (layer) {
-                    map.addLayer(layer);
+                    //map.addLayer(layer);
                 });
+
+                var rasterLayers = createRasterLayers();
+                rasterLayers.forEach(function (layer) {
+                    //map.addLayer(layer);
+                });
+
+                //var drawingLayerFeatures = createDrawingLayerFeatures();
+                // drawingLayerFeatures.on('add', function(event) {
+                //     console.log('layer changed in some way');
+                //     console.log(event);
+                //     // event.type == 'beforepropertychange'
+                //     // event.key == '<the key that is changing>'
+                // });
+
+                // var drawingLayer = createDrawingLayer(drawingLayerFeatures);
+                // map.addLayer(drawingLayer);
+
+                vectorLayer = createVectorLayer();
+                map.addLayer(vectorLayer);
 
                 var view = createView();
                 map.setView(view);
 
-                var drawingLayerFeatures = createDrawingLayerFeatures();
-
-                drawingLayerFeatures.on('add', function(event) {
-                    console.log('layer changed in some way');
-                    console.log(event);
-                    // event.type == 'beforepropertychange'
-                    // event.key == '<the key that is changing>'
-                });
-
-
-                var drawingLayer = createDrawingLayer(drawingLayerFeatures);
-                map.addLayer(drawingLayer);
-
-                var modifyInteraction = createModifyInteraction(drawingLayerFeatures);
-                map.addInteraction(modifyInteraction);
+                // var modifyInteraction = createModifyInteraction(drawingLayerFeatures);
+                // map.addInteraction(modifyInteraction);
 
                 registerMapPointerCorrdinateChange(map, ol, function (coordinate) {
                     if (mapPointerCorrdinateChangeCallBack) {
                         mapPointerCorrdinateChangeCallBack(coordinate);
                     }
                 });
-            };
+            }
 
-            function toggleDrawingInteraction(map, drawingType, drawingLayerFeatures) {
+            function createVectorLayer() {
+                var layer =  new ol.layer.Vector({
+                    source: new ol.source.Vector({
+                        loader: queryVectorFeaturesService,
+                        //strategy: ol.loadingstrategy.bbox
+                        strategy: ol.loadingstrategy.tile(ol.tilegrid.createXYZ({
+                            maxZoom: 20
+                        }))			
+                    })
+                });
+                return layer;
+            }
+
+            function queryVectorFeaturesService(extent) {
+                $.ajax('http://localhost:9000/geoserver/test01/ows?service=WFS', {
+                    type: 'GET',
+                    data: {
+                        service: 'WFS',
+                        version: '1.1.0',
+                        request: 'GetFeature',
+                        typename: 'test01:Districts',
+                        srsname: 'EPSG:31370',
+                        bbox: extent.join(',') + ',EPSG:31370'
+                    }
+                }).done(function(response) {
+                    var formatWFS = new ol.format.WFS();
+                    var features = formatWFS.readFeatures(response);
+                    vectorLayer.getSource().addFeatures(features);
+                }).fail(function(jqXHR, textStatus) {
+                    alert('WFS query error:' + textStatus);
+                });
+            }
+
+            function createRasterLayers() {
+                var backgroundWmsLayer = new ol.layer.Tile({
+                    source: new ol.source.TileWMS({
+                    url: 'http://localhost:9000/geoserver/test01/wms',
+                    params: {'LAYERS': 'test01:Assets1,test01:Assets2,test01:Assets3', 'CQL_FILTER': 'FluidId in (1,2,7,10);FluidId in (2,4,8,9);FluidId in (1,2,5,10)'},
+                    serverType: 'geoserver'
+                    })
+                });
+
+                var netGisLinesWmsLayer = new ol.layer.Tile({
+                    source: new ol.source.TileWMS({
+                    url: 'http://localhost:9000/geoserver/test01/wms',
+                    params: {'LAYERS': 'test01:NetGisLines'},
+                    serverType: 'geoserver'
+                    })
+                });
+
+                var netGisPointsWmsLayer = new ol.layer.Tile({
+                    source: new ol.source.TileWMS({
+                    url: 'http://localhost:9000/geoserver/test01/wms',
+                    params: {'LAYERS': 'test01:NetGisPoints'},
+                    serverType: 'geoserver'
+                    })
+                });
+
+                return [backgroundWmsLayer, netGisLinesWmsLayer, netGisPointsWmsLayer];
+            }
+
+            function toggleDrawingInteraction(drawingType) {
                 var interaction = getInteraction(map, ol.interaction.Draw);
                 if (interaction) {
                     map.removeInteraction(interaction);
@@ -124,41 +166,42 @@
                         return;
                     }
                 }
-                var drawingInteraction = createDrawingInteraction(drawingLayerFeatures, drawingType);
+                var source = vectorLayer.getSource();
+                var drawingInteraction = createDrawingInteraction(source, drawingType);
                 map.addInteraction(drawingInteraction);
-            };
+                	drawingInteraction.on('drawend', function(e) {
+		            console.log("-----------------------");
+		            console.log(e);
+	            });
+            }
 
             function getInteraction(map, interactionType) {
                 return _.find(map.getInteractions().getArray(), function (obj) {
                     return obj instanceof interactionType;
                 });
-            };
+            }
 
             function interactionActive(map, interactionType) {
                 return _.some(map.getInteractions().getArray(), function (obj) {
                     return obj instanceof interactionType;
                 });
-            };
+            }
 
             function registerMapPointerCorrdinateChange(map, ol, callBack) {
                 map.on('pointermove', function (e) {
-                    var coordinate = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
-                    callBack(coordinate);
-                    //$scope.$apply();
-
-
-                    //   feature = null;
-                    //   var features = someLayer.getSource().getFeaturesAtCoordinate(evt.coordinate);
-                    //   if (features.length) {
-                    //     feature = features[0];
-                    //   }
+                    //var coordinate = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+                    callBack(e.coordinate);
                 });
             }
 
             function createView() {
                 var view = new ol.View({
-                    center: ol.proj.transform([4.8667, 50.4667], 'EPSG:4326', 'EPSG:3857'),
-                    zoom: 15
+                    projection: new ol.proj.Projection({
+                        code: 'EPSG:31370',
+                        units: 'm'
+                    }),
+                    center: [147000, 111000],
+                    zoom: 14
                 });
                 return view;
             }
@@ -223,10 +266,6 @@
                 return layers;
             }
 
-            function createDrawingLayerFeatures() {
-                return new ol.Collection();
-            }
-
             function createDrawingLayer(features) {
                 var layer = new ol.layer.Vector({
                     //source: new ol.source.Vector({ features: features }),
@@ -263,10 +302,10 @@
                 return interaction;
             }
 
-            function createDrawingInteraction(features, drawingType) {
+            function createDrawingInteraction(source, drawingType) {
                 var interaction = new ol.interaction.Draw({
                     type: drawingType,
-                    features: features,
+                    source: source,
                     style: new ol.style.Style({
                         image: new ol.style.RegularShape({
                             stroke: new ol.style.Stroke({ color: 'red', width: 1 }),
@@ -287,5 +326,5 @@
                 });
                 return interaction;
             }
-        }]);
+        };
 } ());

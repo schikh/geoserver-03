@@ -24,11 +24,45 @@
     </sw-map>
   </sw-tabstrip-map>
 
-  <sw-tabstrip-notification>
+  <sw-tabstrip-cursor-position-box>
       <div>Coordinate: {{vm2.pointerCoordinate | coordinateFormat}}</div>
-  </sw-tabstrip-notification>
+  </sw-tabstrip-cursor-position-box>
 
 </sw-tabstrip>
+
+<script type="text/ng-template" id="swTabstrip.html">
+
+    <div class="topbar">
+        <!--<ul class="toolbar">
+          <li ng-repeat="pane in panes" ng-class="{active: pane.selected}">
+            <a ng-click="toggle(pane)" class="btn btn-default btn-sm">
+              <i class="menu-icon fa fa-pencil">{{pane.title}}</i>
+            </a>
+          </li>
+        </ul>-->      
+      <div class="toolbar">
+        <a class="btn btn-primary btn-sm" 
+             ng-click="toggle(pane)" 
+             ng-repeat="pane in panes" 
+             ng-class="{active: pane.selected}" >
+            <i class="menu-icon fa fa-pencil"></i>&nbsp; {{pane.title}}
+        </a>
+      </div>
+      <div class="cursorPositionBox" ng-transclude="cursorPositionBox">
+      </div>
+    </div>
+
+  <div id="main-area-wrapper" ng-class="{'wide': anyPaneSelected()}">
+    <div class="map" style="" ng-transclude="map">
+    </div>
+  </div>
+  <div class="sidebar-wrapper" ng-transclude="sidebar" ng-class="{'open': anyPaneSelected()}">
+  </div>
+</script>
+
+<script type="text/ng-template" id="swPane.html">
+  <div ng-show="selected" ng-transclude></div>
+</script>
 
 <script type="text/ng-template" id="swMap.html">
   <div style="height: 100%;">
@@ -47,25 +81,3 @@
   <div ng-transclude></div>
 </script>
 
-<script type="text/ng-template" id="swTabstrip.html">
-  <div id="main-area-wrapper" ng-class="{'wide': anyPaneSelected()}">
-    <span style="float: left;">
-      <ul class="toolbar">
-        <li ng-repeat="pane in panes" ng-class="{active: pane.selected}">
-          <a ng-click="toggle(pane)">
-            <i class="menu-icon fa fa-pencil"></i>
-          </a>
-        </li>
-      </ul>
-    </span>
-    <div style="height: calc(100% - 36px);" ng-transclude="map">
-      <span style="float: right; background-color:pink;" ng-transclude="notification"></span>
-    </div>
-  </div>
-  <div class="sidebar-wrapper" ng-transclude="sidebar" ng-class="{'open': anyPaneSelected()}">
-  </div>
-</script>
-
-<script type="text/ng-template" id="swPane.html">
-  <div ng-show="selected" ng-transclude></div>
-</script>

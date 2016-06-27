@@ -1,32 +1,27 @@
-﻿/* Sticky footer styles
--------------------------------------------------- */
-html {
+﻿html {
   position: relative;
   min-height: 100%;
 }
+
 body {
   /*margin-bottom: 60px;*/
   height: 100%;
 }
+
 .maxdiv {
   position: absolute;
   left: 1px;
   right: 1px;
   /*bottom: 61px;*/
   top: 52px;  
-  background: #999;
 }
 
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 60px;
+  height: 40px;
   background-color: #2d3e63;
-}
-
-.fa-cog {
-  color: pink;
 }
 
 #main-area-wrapper.wide-add,
@@ -36,18 +31,18 @@ body {
 
 #main-area-wrapper.wide-add-active,
 #main-area-wrapper.wide {
-    left: 251px;
-    right: -251px;
-    bottom: 61px; 
+    left: 250px;
+    right: -250px;
+    bottom: 40px; 
 }
 
 #main-area-wrapper {
-    top: 52px;
+    top: 88px;
     left: 0;
     right: 0;
     position: fixed;
     z-index: 999;
-    bottom: 61px;    
+    bottom: 40px;    
 }
 
 .sidebar-wrapper.open-add,
@@ -66,17 +61,40 @@ body {
 }
 
 .sidebar-wrapper {
-    top: 52px;
+    top: 88px;
     margin-left: -250px;
     left: 0px;
     width: 250px;
     position: fixed;
     z-index: 999;
     background: #30426a;
-    bottom: 61px;    
+    bottom: 40px;    
 }
 
-  ul.toolbar {
+.topbar {
+    height: 36px;
+    overflow: hidden; 
+    background: #c0d2fa;
+}
+
+.toolbar{
+  float: left;
+}
+
+.toolbar a {
+  margin: 3px 0px 3px 3px;
+}
+
+.cursorPositionBox {
+  float: right; 
+  background-color: pink;
+}
+
+.map {
+    height: calc(100% - 0px);
+    border: 1px solid black;
+}
+  /*ul.toolbar {
     list-style-type: none;
     display: inline-block;
     -webkit-margin-before: 0px;
@@ -84,23 +102,23 @@ body {
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
     -webkit-padding-start: 0px;
-  }
+  }*/
   
-  ul.toolbar li {
+  /*ul.toolbar li {
     width: 30px;
     height: 30px;
     line-height: 30px;
     text-align: center;
     font-size: 28px;
     float: left;
-    border: 1px solid lightgray;
+    border: 1px solid #2d3e63;
     margin: 3px;
-  }
+  }*/
   /* roll over - move the background image by the height of the button (100px) */
   /*ul.toolbar li a:hover { background-color:green; }*/
   /* active state - move the background image by twice height of the button (200px) */
   
-  ul.toolbar li.active,
+  /*ul.toolbar li.active,
   ul.toolbar li.active:hover {
     background-color: red;
-  }
+  }*/

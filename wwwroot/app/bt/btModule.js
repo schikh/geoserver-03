@@ -5,13 +5,6 @@
         .value('ol', ol);
 
     angular.module('btModule')
-        .filter('coordinateFormat', ['ol', function (ol) {
-            return function (coordinate) {
-                return ol.coordinate.format(coordinate, '{y}, {x}', 4);
-            };
-        }]);
-
-    angular.module('btModule')
         .controller('mapCtrl', ['$scope', 'mapService', function ($scope, mapService) {
             var vm = this;
             vm.mapService = mapService.getInstance();
@@ -52,6 +45,13 @@
                 link: function (scope, element, attributes, swMap) {
                     scope.mapService.togglePolygonDrawingInteraction();
                 }
+            };
+        }]);
+
+    angular.module('btModule')
+        .filter('coordinateFormat', ['ol', function (ol) {
+            return function (coordinate) {
+                return ol.coordinate.format(coordinate, '{y}, {x}', 4);
             };
         }]);
 } ());

@@ -8,7 +8,7 @@
                 transclude: {
                     'map': 'swTabstripMap',
                     'sidebar': 'swTabstripSidebar',
-                    'notification': 'swTabstripNotification'
+                    'cursorPositionBox': 'swTabstripCursorPositionBox'
                 },
                 scope: {},
                 templateUrl: 'swTabstrip.html',
@@ -33,6 +33,7 @@
                     }
                     this.add = function (pane) {
                         pane.selected = false;
+                        pane.title = "fsf fsdf";
                         $scope.panes.push(pane);
                     }
                 }
