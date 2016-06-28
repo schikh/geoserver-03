@@ -62,12 +62,12 @@
 
                 var geographicLayers = getGeographicLayers();
                 geographicLayers.forEach(function (layer) {
-                    //map.addLayer(layer);
+                    map.addLayer(layer);
                 });
 
                 var rasterLayers = createRasterLayers();
                 rasterLayers.forEach(function (layer) {
-                    //map.addLayer(layer);
+                    map.addLayer(layer);
                 });
 
                 //var drawingLayerFeatures = createDrawingLayerFeatures();

@@ -101,6 +101,7 @@
                 scope: {
                     title: '@',
                     icon: '@',
+                    image: '@',
                     click: '&'
                 },
                 require: '^swToolbar',
