@@ -54,6 +54,12 @@
             this.toggleCircleDrawingInteraction = function () {
                 toggleDrawingInteraction('Circle');
             };   
+
+            this.toggle???????Interaction = function () {
+                removeActiveInteractions();
+                addModifyInteractions();
+            };   
+
         
             function initialize(divElement) {
                 map = new ol.Map({
@@ -168,12 +174,28 @@
                 }
                 var source = vectorLayer.getSource();
                 var drawingInteraction = createDrawingInteraction(source, drawingType);
+              	drawingInteraction.on('drawend', function(e) {
+	            	transactWFS('insert', e.feature);
+	            });
                 map.addInteraction(drawingInteraction);
                 	drawingInteraction.on('drawend', function(e) {
 		            console.log("-----------------------");
 		            console.log(e);
 	            });
             }
+
+function toggleDeleteDrawingInteraction() {
+	interaction = new ol.interaction.Select();
+	interaction.getFeatures().on('change:length', function(e) {
+		var feature = interaction.getFeatures().item(0);
+		if(!feature) return;
+		transactWFS('delete', feature);
+		vectorLayer.getSource().removeFeature(feature);
+		interaction.getFeatures().clear();
+		selectPointerMove.getFeatures().clear();
+	});
+	map.addInteraction(interaction);
+}
 
             function getInteraction(map, interactionType) {
                 return _.find(map.getInteractions().getArray(), function (obj) {
@@ -327,4 +349,108 @@
                 return interaction;
             }
         };
+
+        function GetWfsCommand(action, feature) {
+            var addedFeatures, updatedFeatures, deletedFeatures;
+            switch(action) {
+                case 'insert':
+                    addedFeatures = [feature];
+                    break;
+                case 'update':
+                    updatedFeatures = [feature];
+                    break;
+                case 'delete':
+                    deletedFeatures = [feature];
+                    break;
+            }
+            var gmlFormat = new ol.format.GML({
+                featureNS: 'http://bsr.ores.be/test01',
+                featureType: 'Districts',
+                srsName: 'EPSG:31370'
+            });	
+            var wfsFormat = new ol.format.WFS();
+            var command = wfsFormat.writeTransaction(addedFeatures, updatedFeatures, deletedFeatures, gmlFormat);
+            return command;
+        }
+
+        function postCommandToVectorFeaturesService(commandText) {
+            $.ajax('http://localhost:9000/geoserver/test01/ows', {
+                type: 'POST',
+                dataType: 'xml',
+                processData: false,
+                contentType: 'text/xml',
+                data: commandText
+            }).done(function(response) {
+                var formatWFS = new ol.format.WFS();
+                var r = formatWFS.readTransactionResponse(response);		
+                if(r.transactionSummary.totalDeleted !== 1  
+                    && r.transactionSummary.totalInserted !== 1
+                    && r.transactionSummary.totalUpdated !== 1) {
+                        alert('WFS Transaction error' + JSON.stringify(r.transactionSummary));
+                }
+            }).fail(function(jqXHR, textStatus) {
+                alert('WFS Transaction error:' + textStatus);
+            });
+        }
+
+        function transactWFS(action, feature) {
+            feature.set('DistrictName', "XXX");
+            //feature.set('DistrictId', 12345);
+            //feature.setGeometryName("DistrictGeo"); 
+            var command = GetWfsCommand(action, feature);
+            var serializer = new XMLSerializer();
+            var commandText = serializer.serializeToString(command);
+            commandText = commandText.replace("<geometry>", "<DistrictGeo>");
+            commandText = commandText.replace("</geometry>", "</DistrictGeo>");
+            postCommandToVectorFeaturesService(commandText);
+        }
+
+
+
+
+            function addModifyInteractions() {
+                var selectInteraction = getSelectInteraction(vectorLayer);
+                var features = selectInteraction.getFeatures();
+                map.addInteraction(selectInteraction);
+                map.addInteraction(getModifyInteraction(features));
+                map.addInteraction(getTranslateInteraction(features));
+            }
+
+            function getSelectInteraction(layer) {
+                var interaction = new ol.interaction.Select({
+                    //style: Styles.redLiningEditStyle,
+                    layers: [layer]
+                });
+                return interaction;
+            }
+
+            function getModifyInteraction(features) {
+                return new ol.interaction.Modify({
+                    //style: Styles.redLiningEditStyle,
+                    features: features
+                });
+            }
+
+            function getTranslateInteraction(features) {
+                return new ol.interaction.Translate({
+                    //style: Styles.redLiningEditStyle,
+                    features: features
+                });
+            }        
+
+            function removeActiveInteractions() {
+                var types = [ol.interaction.Draw, 
+                ol.interaction.Translate,
+                ol.interaction.Modify,
+                ol.interaction.Select];
+                var activeInterations = map.getInteractions().getArray();
+                types.forEach(function(type) {
+                    var list = _.filter(activeInterations, function (obj) {
+                        return obj instanceof type;
+                    });
+                    list.forEach(function(interaction) {
+                        mat.removeInteraction(interaction);
+                    });
+                });
+            };            
 } ());

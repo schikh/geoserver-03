@@ -2,16 +2,16 @@
     'use strict';
 
     angular.module('btModule')
-        .directive('swTabstrip', function () {
+        .directive('swFrame', function () {
             return {
                 restrict: 'E',
                 transclude: {
-                    'map': 'swTabstripMap',
-                    'sidebar': 'swTabstripSidebar',
-                    'cursorPositionBox': 'swTabstripCursorPositionBox'
+                    'map': 'swFrameMap',
+                    'sidebar': 'swFrameSidebar',
+                    'cursorPositionBox': 'swFrameCursorPositionBox'
                 },
                 scope: {},
-                templateUrl: 'swTabstrip.html',
+                templateUrl: 'swFrame.html',
                 controller: function ($scope) {
                     $scope.panes = [];
                     $scope.selectedPane = null;
@@ -49,7 +49,7 @@
                     title: '@'
                 },
                 templateUrl: 'swPane.html',
-                require: '^swTabstrip',
+                require: '^swFrame',
                 link: function (scope, el, attrs, tabstripCtrl) {
                     tabstripCtrl.add(scope);
                 }
@@ -57,44 +57,44 @@
         });
 
     angular.module('btModule')
-        .directive('swToolbar', function () {
+        .directive('swSidebar', function () {
             return {
                 restrict: 'E',
                 transclude: true,
                 scope: {},
-                templateUrl: 'swToolbar.html',
+                templateUrl: 'swSidebar.html',
                 controller: function ($scope) {
-                    $scope.toolbarButtons = [];
-                    $scope.selectedToolbarButton = null;
-                    $scope.anyToolbarButtonSelected = function () {
-                        return $scope.selectedToolbarButton != null;
+                    $scope.buttons = [];
+                    $scope.selectedbutton = null;
+                    $scope.anybuttonSelected = function () {
+                        return $scope.selectedbutton != null;
                     }
-                    $scope.toggle = function (toolbarButton) {
-                        if ($scope.selectedToolbarButton == toolbarButton) {
-                            toolbarButton.selected = false;
-                            $scope.selectedToolbarButton = null;
+                    $scope.toggle = function (button) {
+                        if ($scope.selectedbutton == button) {
+                            button.selected = false;
+                            $scope.selectedbutton = null;
                         }
                         else {
-                            if ($scope.selectedToolbarButton != null) {
-                                $scope.selectedToolbarButton.selected = false;
+                            if ($scope.selectedbutton != null) {
+                                $scope.selectedbutton.selected = false;
                             }
-                            toolbarButton.selected = true;
-                            $scope.selectedToolbarButton = toolbarButton;
+                            button.selected = true;
+                            $scope.selectedbutton = button;
                         }
-                    console.log("toolbarButton click");    
-                    console.log(toolbarButton);    
-                        toolbarButton.click();
+                    console.log("button click");    
+                    console.log(button);    
+                        button.click();
                     }
-                    this.add = function (toolbarButton) {
-                        toolbarButton.selected = false;
-                        $scope.toolbarButtons.push(toolbarButton);
+                    this.add = function (button) {
+                        button.selected = false;
+                        $scope.buttons.push(button);
                     }
                 }
             }
         });
 
     angular.module('btModule')
-        .directive('swToolbarButton', function () {
+        .directive('swSidebarButton', function () {
             return {
                 restrict: 'E',
                 template: '',
@@ -104,7 +104,7 @@
                     image: '@',
                     click: '&'
                 },
-                require: '^swToolbar',
+                require: '^swSidebar',
                 link: function (scope, el, attrs, toolbarCtrl) {
                     toolbarCtrl.add(scope);
                 }

@@ -1,37 +1,47 @@
-<sw-tabstrip>
+<sw-frame>
 
-  <sw-tabstrip-sidebar>
+  <sw-frame-sidebar>
     <sw-pane title="Drawing tools">
       <h4>Drawin tools</h4>
-      <sw-toolbar>
+      <sw-sidebar>
         <!--eraser  fa-text-width -->
-        <sw-toolbar-button title="1" icon="fa-square-o" click="vm2.mapService.togglePolygonDrawingInteraction()" />
-        <sw-toolbar-button title="2" image="images/multiline.ico" click="vm2.mapService.toggleLineStringDrawingInteraction()" />
-        <sw-toolbar-button title="3" icon="fa-pencil" click="vm2.mapService.togglePointDrawingInteraction()" />
-        <sw-toolbar-button title="4" icon="fa-circle-o" click="vm2.mapService.toggleCircleDrawingInteraction()" />
-      </sw-toolbar>
+        <sw-sidebar-button title="Polygon" icon="fa-square-o" click="vm2.mapService.togglePolygonDrawingInteraction()" />
+        <sw-sidebar-button title="Line" image="images/multiline.ico" click="vm2.mapService.toggleLineStringDrawingInteraction()" />
+        <sw-sidebar-button title="Point" icon="fa-pencil" click="vm2.mapService.togglePointDrawingInteraction()" />
+        <sw-sidebar-button title="Circle" icon="fa-circle-o" click="vm2.mapService.toggleCircleDrawingInteraction()" />
+        <sw-sidebar-button title="Delete" icon="fa-eraser" click="vm2.mapService.toggleDeleteDrawingInteraction()" />
+        <sw-sidebar-button title="Modify" icon="fa-circle-o" click="vm2.mapService.toggleModifyDrawingInteraction()" />
+        <sw-sidebar-button title="Move" icon="fa-circle-o" click="vm2.mapService.toggleMoveDrawingInteraction()" />
+        <sw-sidebar-button title="Details" icon="fa-circle-o" click="vm2.mapService.toggleShowDrawingDetailsInteraction()" />
+      </sw-sidebar>
     </sw-pane>
     <sw-pane title="Layers">
       <h4>Layers</h4>
     </sw-pane>
     <sw-pane title="?">
       <h4>?</h4>
+        <ul class="nav nav-pills nav-stacked">
+          <li><a><span class="glyphicon glyphicon-off"></span>  Overview</a></li>
+          <li><a><span class="glyphicon glyphicon-user"></span>  Profile</a></li>
+          <li><a><span class="glyphicon glyphicon-lock"></span>  Access</a></li>
+          <li><a><span class="glyphicon glyphicon-envelope"></span>  Message</a></li>
+        </ul>
     </sw-pane>
-  </sw-tabstrip-sidebar>
+  </sw-frame-sidebar>
 
-  <sw-tabstrip-map>
+  <sw-frame-map>
     <sw-map map-service="vm2.mapService">
       <!--<sw-drawing-interaction map-service="vm2.mapService"></sw-drawing-interaction>-->
     </sw-map>
-  </sw-tabstrip-map>
+  </sw-frame-map>
 
-  <sw-tabstrip-cursor-position-box>
+  <sw-frame-cursor-position-box>
       <div>Coordinate: {{vm2.pointerCoordinate | coordinateFormat}}</div>
-  </sw-tabstrip-cursor-position-box>
+  </sw-frame-cursor-position-box>
 
-</sw-tabstrip>
+</sw-frame>
 
-<script type="text/ng-template" id="swTabstrip.html">
+<script type="text/ng-template" id="swFrame.html">
 
     <div class="topbar">
         <!--<ul class="toolbar">
@@ -71,15 +81,15 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="swToolbar.html">
-  <ul class="toolbar">
-    <li ng-repeat="toolbarButton in toolbarButtons" ng-class="{active: toolbarButton.selected}">
-      <a ng-click="toggle(toolbarButton)">
-        <div ng-if="toolbarButton.icon">
-          <i class="menu-icon fa {{toolbarButton.icon}}"></i>&nbsp; {{toolbarButton.title}}
+<script type="text/ng-template" id="swSidebar.html">
+  <ul class="nav nav-pills nav-stacked sidebar">
+    <li ng-repeat="button in buttons" ng-class="{active: button.selected}">
+      <a ng-click="toggle(button)">
+        <div ng-if="button.icon">
+          <i class="menu-icon fa {{button.icon}}"></i>&nbsp; {{button.title}}
         </div>
-        <div ng-if="toolbarButton.image">
-          <img src="{{toolbarButton.image}}" height="20" width="18"/>&nbsp; {{toolbarButton.title}}
+        <div ng-if="button.image">
+          <img src="{{button.image}}" height="14" width="14"/>&nbsp; {{button.title}}
         </div>
       </a>
     </li>
