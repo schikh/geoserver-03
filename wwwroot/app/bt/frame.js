@@ -32,9 +32,10 @@
                         }
                     }
                     this.add = function (pane) {
-                        pane.selected = false;
-                        pane.title = "fsf fsdf";
                         $scope.panes.push(pane);
+                        if(pane.selected) {
+                            $scope.selectedPane = pane;
+                        }
                     }
                 }
             }
@@ -46,7 +47,8 @@
                 restrict: 'E',
                 transclude: true,
                 scope: {
-                    title: '@'
+                    title: '@',
+                    selected: '@'
                 },
                 templateUrl: 'swPane.html',
                 require: '^swFrame',
@@ -81,8 +83,6 @@
                             button.selected = true;
                             $scope.selectedbutton = button;
                         }
-                    console.log("button click");    
-                    console.log(button);    
                         button.click();
                     }
                     this.add = function (button) {

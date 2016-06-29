@@ -19,7 +19,7 @@ body {
   left: 0px;
   right: 0px;
   top: 52px;
-  border: 1px solid red;  
+  border: 0px solid red;  
 }
 
 .footer {
@@ -29,7 +29,7 @@ body {
   height: 40px;
   color: white;
   background-color: #2c3e50;
-  border: 1px solid red;  
+  border: 0px solid red;  
 }
 
 /* main area */
@@ -53,7 +53,7 @@ body {
     position: fixed;
     z-index: 999;
     bottom: 40px;
-    border: 1px solid red;          
+    border: 0px solid red;          
 }
 
 /* sidebar wrapper */
@@ -82,7 +82,7 @@ body {
     z-index: 999;
     background: #4c6e80;
     bottom: 40px;    
-    border: 1px solid red;  
+    border: 0px solid red;  
 }
 
 /* topbar and toolbar */
@@ -121,7 +121,7 @@ body {
 
 .navbar-inverse {
   background-color: #2c3e50;
-       border: 1px solid red;  
+       border: 0px solid red;  
 }
 
 .navbar-inverse .navbar-brand {

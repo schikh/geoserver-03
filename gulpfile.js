@@ -67,7 +67,7 @@ gulp.task('default', ['help']);
 gulp.task('dev', function() {
 	browserSync.init({
 		notify: false,
-		port: 8000,
+		port: 8083,
 		server: {
 			baseDir: ['wwwroot'],
 	 		routes: { 
