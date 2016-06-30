@@ -63,10 +63,20 @@
 
         this.toggleModifyDrawingInteraction = function () {
             removeActiveInteractions();
-            addModifyInteractions();
+            addModifyOrTransposeInteraction("Modify");
+        };
+
+        this.toggleTransposeDrawingInteraction = function () {
+            removeActiveInteractions();
+            addModifyOrTransposeInteraction("Transpose");
         };
 
         this.toggleDeleteDrawingInteraction = function () {
+            removeActiveInteractions();
+            addDeleteInteraction();
+        };
+
+        this.toggleShowDrawingDetailsInteraction = function () {
             removeActiveInteractions();
             addDeleteInteraction();
         };
@@ -107,7 +117,22 @@
                     strategy: ol.loadingstrategy.tile(ol.tilegrid.createXYZ({
                         maxZoom: 20
                     }))
-                })
+                }),
+                style: new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'rgba(255, 0, 0, 0.2)'
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#ff0000',
+                        width: 2
+                    }),
+                    image: new ol.style.Circle({
+                        radius: 7,
+                        fill: new ol.style.Fill({
+                            color: '#ff0000'
+                        })
+                    })
+                })                
             });
             return layer;
         }
@@ -160,39 +185,6 @@
             return [backgroundWmsLayer, netGisLinesWmsLayer, netGisPointsWmsLayer];
         }
 
-        function toggleDrawingInteraction(drawingType) {
-            var interaction = getInteraction(map, ol.interaction.Draw);
-            if (interaction) {
-                map.removeInteraction(interaction);
-                if (interaction.type_ == drawingType) {
-                    return;
-                }
-            }
-            var source = vectorLayer.getSource();
-            var drawingInteraction = createDrawingInteraction(source, drawingType);
-            drawingInteraction.on('drawend', function (e) {
-                transactWFS('insert', e.feature);
-            });
-            map.addInteraction(drawingInteraction);
-            drawingInteraction.on('drawend', function (e) {
-                console.log("-----------------------");
-                console.log(e);
-            });
-        }
-
-        function toggleDeleteDrawingInteraction() {
-            interaction = new ol.interaction.Select();
-            interaction.getFeatures().on('change:length', function (e) {
-                var feature = interaction.getFeatures().item(0);
-                if (!feature) return;
-                transactWFS('delete', feature);
-                vectorLayer.getSource().removeFeature(feature);
-                interaction.getFeatures().clear();
-                selectPointerMove.getFeatures().clear();
-            });
-            map.addInteraction(interaction);
-        }
-
         function getInteraction(map, interactionType) {
             return _.find(map.getInteractions().getArray(), function (obj) {
                 return obj instanceof interactionType;
@@ -229,67 +221,6 @@
             });
             layer.setOpacity(.3);
             return [layer];
-        }
-
-        function createDrawingLayer(features) {
-            var layer = new ol.layer.Vector({
-                //source: new ol.source.Vector({ features: features }),
-                style: new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: 'rgba(255, 255, 255, 0.2)'
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: '#ffcc33',
-                        width: 2
-                    }),
-                    image: new ol.style.Circle({
-                        radius: 7,
-                        fill: new ol.style.Fill({
-                            color: '#ffcc33'
-                        })
-                    })
-                })
-            });
-            return layer;
-        }
-
-        function createModifyInteraction(features) {
-            var interaction = new ol.interaction.Modify({
-                features: features,
-                // the SHIFT key must be pressed to delete vertices, so
-                // that new vertices can be drawn at the same position
-                // of existing vertices
-                deleteCondition: function (event) {
-                    return ol.events.condition.shiftKeyOnly(event) &&
-                        ol.events.condition.singleClick(event);
-                }
-            });
-            return interaction;
-        }
-
-        function createDrawingInteraction(source, drawingType) {
-            var interaction = new ol.interaction.Draw({
-                type: drawingType,
-                source: source,
-                style: new ol.style.Style({
-                    image: new ol.style.RegularShape({
-                        stroke: new ol.style.Stroke({ color: 'red', width: 1 }),
-                        points: 4,
-                        radius: 30,
-                        radius2: 0,
-                        angle: 0
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: 'red',
-                        width: 1
-                    }),
-                    fill: new ol.style.Fill({
-                        color: 'rgba(255, 0, 0, 0.3)'
-                    })
-                }),
-                active: true
-            });
-            return interaction;
         }
 
         function GetWfsCommand(action, feature) {
@@ -347,12 +278,86 @@
             postCommandToVectorFeaturesService(commandText);
         }
 
-        function addModifyInteractions() {
+        function toggleDrawingInteraction(drawingType) {
+            var interaction = getInteraction(map, ol.interaction.Draw);
+            if (interaction) {
+                map.removeInteraction(interaction);
+                if (interaction.type_ == drawingType) {
+                    return;
+                }
+            }
+            var source = vectorLayer.getSource();
+            var drawingInteraction = createDrawingInteraction(source, drawingType);
+            drawingInteraction.on('drawend', function (e) {
+                transactWFS('insert', e.feature);
+            });
+            map.addInteraction(drawingInteraction);
+        }
+
+        function createDrawingInteraction(source, drawingType) {
+            var interaction = new ol.interaction.Draw({
+                type: drawingType,
+                source: source,
+                style: new ol.style.Style({
+                    image: new ol.style.RegularShape({
+                        stroke: new ol.style.Stroke({ color: 'red', width: 1 }),
+                        points: 4,
+                        radius: 30,
+                        radius2: 0,
+                        angle: 0
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: 'red',
+                        width: 1
+                    }),
+                    fill: new ol.style.Fill({
+                        color: 'rgba(255, 0, 0, 0.3)'
+                    })
+                }),
+                active: true
+            });
+            return interaction;
+        }
+
+        function toggleDeleteDrawingInteraction() {
+            interaction = new ol.interaction.Select();
+            interaction.getFeatures().on('change:length', function (e) {
+                var feature = interaction.getFeatures().item(0);
+                if (!feature) return;
+                transactWFS('delete', feature);
+                vectorLayer.getSource().removeFeature(feature);
+                interaction.getFeatures().clear();
+                selectPointerMove.getFeatures().clear();
+            });
+            map.addInteraction(interaction);
+        }
+        
+        function addModifyOrTransposeInteraction(action) {
+            var modifiedFeatures;
             var selectInteraction = getSelectInteraction(vectorLayer);
             var features = selectInteraction.getFeatures();
             map.addInteraction(selectInteraction);
-            map.addInteraction(getModifyInteraction(features));
-            map.addInteraction(getTranslateInteraction(features));
+            var interaction = action === "Modify" ? createModifyInteraction(features) : 
+                getTranslateInteraction(features);
+            map.addInteraction(interaction);
+
+            modifiedFeatures = [];
+            selectInteraction.getFeatures().on('add', function(e) {
+                e.element.on('change', function(e) {
+                    modifiedFeatures[e.target.getId()] = true;
+                });
+            });
+            selectInteraction.getFeatures().on('remove', function(e) {
+                var f = e.element;
+                if (modifiedFeatures[f.getId()]) {
+                    delete modifiedFeatures[f.getId()];
+                    var featureProperties = f.getProperties();
+                    delete featureProperties.boundedBy;
+                    var clone = new ol.Feature(featureProperties);
+                    clone.setId(f.getId());
+                    transactWFS('update', clone);
+                }
+            });
         }
 
         function getSelectInteraction(layer) {
@@ -363,11 +368,18 @@
             return interaction;
         }
 
-        function getModifyInteraction(features) {
-            return new ol.interaction.Modify({
-                //style: Styles.redLiningEditStyle,
-                features: features
+        function createModifyInteraction(features) {
+            var interaction = new ol.interaction.Modify({
+                features: features,
+                // the SHIFT key must be pressed to delete vertices, so
+                // that new vertices can be drawn at the same position
+                // of existing vertices
+                deleteCondition: function (event) {
+                    return ol.events.condition.shiftKeyOnly(event) &&
+                        ol.events.condition.singleClick(event);
+                }
             });
+            return interaction;
         }
 
         function getTranslateInteraction(features) {
